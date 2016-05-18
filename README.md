@@ -1,6 +1,6 @@
 checklist
 =========
 
-Use the shade task to build an executable jar.  
+A experimental scripting task manager
 
-   mvn package && java -jar ./target/checklist-1.0-SNAPSHOT-jar-with-dependencies.jar
+   sbt test
