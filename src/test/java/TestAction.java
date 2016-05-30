@@ -21,7 +21,7 @@ public class TestAction {
    public void testAnonymous()
    {
        Action action = new Action() {
-           public Callable<String> call(ChecklistContext ctx) { return null; }
+           public Callable<String> getWork(ChecklistContext ctx) { return null; }
        };
        assertThat(action, instanceOf(Action.class));
        //assertTrue(action.go());
@@ -30,7 +30,7 @@ public class TestAction {
    @Test
    public void testAsyncFinished() {
        Action action = new Action() {
-            public Callable<String> call(ChecklistContext ctx) {
+            public Callable<String> getWork(ChecklistContext ctx) {
                 return new Callable<String>() {
                     public String call() {
                         return "foo";
@@ -41,7 +41,7 @@ public class TestAction {
 
        try {
            ChecklistContext ctx = new ChecklistContext();
-           Callable<String> callable = action.call(ctx);
+           Callable<String> callable = action.getWork(ctx);
            String ack = callable.call();
            assertEquals("string not equal", ack, "foo");
        } catch (Exception e) {
