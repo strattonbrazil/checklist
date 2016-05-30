@@ -10,10 +10,12 @@ public class Checklist
     private ArrayList<ActionNode> _actionNodes = new ArrayList<ActionNode>();
 
     public void addAction(String name, Action action) {
+        // TODO: check for duplicate task names
         _actionNodes.add(new ActionNode(name, new ArrayList<String>(), action));
     }
 
     public void addAction(String name, ArrayList<String> dependencies, Action action) {
+        // TODO: check for duplicate task names
         _actionNodes.add(new ActionNode(name, dependencies, action));
     }
 
@@ -29,41 +31,39 @@ public class Checklist
         }
     }
 
-    public void run() {
-        // map action names to actions
+    private ArrayList<ActionNode> getSortedTasks() {
         HashMap<String,ActionNode> nodes = new HashMap<String,ActionNode>();
-
         HashMap<String,HashSet<String>> dependentNodes = new HashMap<String,HashSet<String>>();
-
         Stack<ActionNode> noDependencyNodes = new Stack<ActionNode>();
+
+        // map action names to nodes
         for (ActionNode node : _actionNodes) {
             nodes.put(node.name, node);
             dependentNodes.put(node.name, new HashSet<String>());
         }
 
+        // gather nodes with no dependencies
         for (ActionNode node : _actionNodes) {
-
             if (node.dependencies.size() == 0) {
                 noDependencyNodes.push(node);
-            } else {
-                for (String dependencyName : node.dependencies) {
-                    dependentNodes.get(dependencyName).add(node.name);
-                }
+            }
+            // map nodes to dependencies
+            for (String dependencyName : node.dependencies) {
+                dependentNodes.get(dependencyName).add(node.name);
             }
         }
 
+        // add nodes with no dependencies to list; if all of a node's
+        // dependencies have been added, it can be added
+        //
         ArrayList<ActionNode> sortedNodes = new ArrayList<ActionNode>();
         while (!noDependencyNodes.isEmpty()) {
             ActionNode nNode = noDependencyNodes.pop();
             sortedNodes.add(nNode);
 
-            System.out.println("adding task to list: " + nNode.name);
-
             // for each node "m" dependent on "n"
-            System.out.println("getting tasks dependent on " + nNode.name);
             for (String mNodeName : dependentNodes.get(nNode.name)) {
                 ActionNode mNode = nodes.get(mNodeName);
-                System.out.println("  " + mNode.name + " is dependent on " + nNode.name);
                 mNode.dependencies.remove(nNode.name);
                 if (mNode.dependencies.isEmpty()) {
                     noDependencyNodes.push(mNode);
@@ -71,12 +71,12 @@ public class Checklist
             }
         }
 
-        System.out.println("# of nodes: " + sortedNodes.size());
-        System.out.println("sorted order: ");
-        for (ActionNode a : sortedNodes) {
-            System.out.println("  " + a.name);
-        }
+        // TODO: check for cyclic dependencies
 
+        return sortedNodes;
+    }
 
+    public void run() {
+        getSortedTasks();
     }
 }

@@ -1,6 +1,10 @@
 checklist
 =========
 
-A experimental scripting task manager
+A experimental dependency-based task manager.  
 
-   sbt test
+To run checklist, type *sbt run*
+
+To run the unit tests, type *sbt test*
+
+To package in uberjar, type *sbt assembly*
