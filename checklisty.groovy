@@ -15,4 +15,4 @@ checklist.addAction("clean", new MyAction())
 
 checklist.addAction("compile", ["clean"], new MyAction())
 
-checklist.run()
+checklist.addAction("default", new MyAction())

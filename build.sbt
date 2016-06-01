@@ -11,18 +11,11 @@ autoScalaLibrary := false
 // libraryDependencies ++= Seq( <any normal jar deps> )
 libraryDependencies += "org.codehaus.groovy" % "groovy-all" % "2.4.6"
 
+// http://mvnrepository.com/artifact/commons-cli/commons-cli
+libraryDependencies += "commons-cli" % "commons-cli" % "1.3.1"
+
 libraryDependencies ++= Seq(
   "junit" % "junit" % "4.11" % Test,
   "com.novocode" % "junit-interface" % "0.11" % Test
         exclude("junit", "junit-dep")
 )
-
-// http://mvnrepository.com/artifact/org.scala-lang/scala-compiler
-//libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.11.8"
-
-
-// http://mvnrepository.com/artifact/org.scala-lang/scala-library
-//libraryDependencies += "org.scala-lang" % "scala-library" % "2.11.8"
-
-// http://mvnrepository.com/artifact/org.python/jython
-libraryDependencies += "org.python" % "jython" % "2.7.0"

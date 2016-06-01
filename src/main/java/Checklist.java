@@ -7,48 +7,42 @@ import java.util.HashSet;
 
 public class Checklist
 {
-    private ArrayList<ActionNode> _actionNodes = new ArrayList<ActionNode>();
+    private HashMap<String,ActionNode> _actionNodes = new HashMap<String,ActionNode>();
 
-    public void addAction(String name, Action action) {
-        // TODO: check for duplicate task names
-        _actionNodes.add(new ActionNode(name, new ArrayList<String>(), action));
+    public ActionNode addAction(String name, Action action) {
+        return addAction(name, new ArrayList<String>(), action);
     }
 
-    public void addAction(String name, ArrayList<String> dependencies, Action action) {
-        // TODO: check for duplicate task names
-        _actionNodes.add(new ActionNode(name, dependencies, action));
-    }
-
-    private class ActionNode {
-        final String name;
-        final ArrayList<String> dependencies;
-        final Action action;
-
-        public ActionNode(String name, ArrayList<String> deps, Action action) {
-            this.name = name;
-            this.dependencies = deps;
-            this.action = action;
+    public ActionNode addAction(String name, ArrayList<String> dependencies, Action action) {
+        ActionNode node = new ActionNode(name, dependencies, action);
+        if (_actionNodes.containsKey(name)) {
+            System.err.println("duplicate task name defined: " + name);
+            System.exit(1);
         }
+        _actionNodes.put(name, node);
+        return node;
     }
 
-    private ArrayList<ActionNode> getSortedTasks() {
+    public ArrayList<ActionNode> getSortedTasks() {
         HashMap<String,ActionNode> nodes = new HashMap<String,ActionNode>();
         HashMap<String,HashSet<String>> dependentNodes = new HashMap<String,HashSet<String>>();
-        Stack<ActionNode> noDependencyNodes = new Stack<ActionNode>();
+        HashMap<String,ArrayList<String>> nodeDependencies = new HashMap<String,ArrayList<String>>();
 
         // map action names to nodes
-        for (ActionNode node : _actionNodes) {
-            nodes.put(node.name, node);
-            dependentNodes.put(node.name, new HashSet<String>());
+        for (String taskName : _actionNodes.keySet()) {
+            nodes.put(taskName, _actionNodes.get(taskName));
+            dependentNodes.put(taskName, new HashSet<String>());
+            nodeDependencies.put(taskName, _actionNodes.get(taskName).dependencies());
         }
 
         // gather nodes with no dependencies
-        for (ActionNode node : _actionNodes) {
-            if (node.dependencies.size() == 0) {
+        Stack<ActionNode> noDependencyNodes = new Stack<ActionNode>();
+        for (ActionNode node : _actionNodes.values()) {
+            if (node.dependencies().size() == 0) {
                 noDependencyNodes.push(node);
             }
             // map nodes to dependencies
-            for (String dependencyName : node.dependencies) {
+            for (String dependencyName : node.dependencies()) {
                 dependentNodes.get(dependencyName).add(node.name);
             }
         }
@@ -64,19 +58,59 @@ public class Checklist
             // for each node "m" dependent on "n"
             for (String mNodeName : dependentNodes.get(nNode.name)) {
                 ActionNode mNode = nodes.get(mNodeName);
-                mNode.dependencies.remove(nNode.name);
-                if (mNode.dependencies.isEmpty()) {
+                nodeDependencies.get(mNodeName).remove(nNode.name);
+                if (nodeDependencies.get(mNodeName).isEmpty()) {
                     noDependencyNodes.push(mNode);
                 }
             }
         }
 
-        // TODO: check for cyclic dependencies
+        for (String taskName : nodeDependencies.keySet()) {
+            if (!nodeDependencies.get(taskName).isEmpty()) {
+                throw new UnsupportedOperationException("cyclic dependency detected on task \'" + taskName + "\'");
+            }
+        }
 
         return sortedNodes;
     }
 
-    public void run() {
-        getSortedTasks();
+    public void run(String[] taskNames) {
+        taskNames = removeDuplicates(taskNames);
+
+        // TODO: if empty, assume "default"
+
+        // filter out tasks that don't need to be run
+        //
+        ArrayList<ActionNode> allTasks = getSortedTasks();
+        HashSet<String> requiredTasks = new HashSet<String>();
+        for (String taskName : taskNames) {
+            addDependencies(taskName, _actionNodes, requiredTasks);
+        }
+    }
+
+    // recursively traverse through task and its dependencies adding them to
+    // the required set
+    public void addDependencies(String taskName,
+        HashMap<String,ActionNode> nodes, HashSet<String> requiredTasks) {
+
+        if (!requiredTasks.contains(taskName)) {
+            ActionNode node = nodes.get(taskName);
+            requiredTasks.add(taskName);
+            for (String dependency : node.dependencies()) {
+                addDependencies(dependency, nodes, requiredTasks);
+            }
+        }
+    }
+
+    private String[] removeDuplicates(String[] array) {
+        HashSet<String> set = new HashSet<String>();
+        ArrayList<String> out = new ArrayList<String>();
+        for (String s : array) {
+            if (!set.contains(s)) {
+                set.add(s);
+                out.add(s);
+            }
+        }
+        return out.toArray(new String[out.size()]);
     }
 }

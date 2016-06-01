@@ -12,26 +12,22 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import javax.management.RuntimeErrorException;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineFactory;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-//import scala.tools.nsc.interpreter.IMain;
-//import scala.tools.nsc.settings.MutableSettings.BooleanSetting;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
 
 class App
 {
     public static void main(String[] args) {
-
-        //String s = currentRelativePath.toAbsolutePath().toString();
-
-        // filename passed in
+        // if the first arg is an existing file, assume it's the definition file
         Path checklistPath = args.length > 0 ? Paths.get(args[0]) : null;
-        App app = new App(checklistPath);
+        if (checklistPath != null && !Files.exists(checklistPath)) {
+            checklistPath = null;
+        }
+        App app = new App(checklistPath, args);
     }
 
-    public App(Path checklistPath) {
+    public App(Path checklistPath, String[] args) {
         Path currentRelativePath = Paths.get("").toAbsolutePath();
 
         if (checklistPath == null) {
@@ -43,24 +39,37 @@ class App
             }
         }
 
-        Binding binding = new Binding();
-        binding.setProperty("out", new PrintStream(System.out));
-
-        binding.setVariable("wack", new ChecklistContext());
-        binding.setVariable("checklist", new Checklist());
-
-        GroovyShell shell = new GroovyShell(binding);
-
         try {
+            CommandLine cl = parseCommandLine(args);
+            Checklist checklist = new Checklist();
 
-            shell.run(checklistPath.toFile(), new String[]{ } );
-            //Script script = shell.parse(checklistPath.toFile());
+            Binding binding = new Binding();
+            binding.setProperty("out", new PrintStream(System.out));
+            binding.setVariable("checklist", checklist);
+            GroovyShell shell = new GroovyShell(binding);
 
-            //shell.evaluate(checklistPath.toFile());
-        } catch (IOException e) {
-            System.err.println("ack");
+            try {
+                shell.run(checklistPath.toFile(), new String[]{ } );
+
+                checklist.run(cl.getArgs());
+            } catch (IOException e) {
+                System.err.println("error processing script: " + checklistPath.toString());
+                System.exit(1);
+            }
+        } catch (org.apache.commons.cli.ParseException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
         }
+    }
 
+    private CommandLine parseCommandLine(String[] args)
+        throws org.apache.commons.cli.ParseException {
+
+        DefaultParser parser = new DefaultParser();
+        Options opts = new Options();
+        CommandLine cl = null;
+
+        return parser.parse(opts, args);
     }
 
     private Path findChecklistPath() throws FileNotFoundException {
