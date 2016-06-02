@@ -9,10 +9,21 @@ public class Checklist
 {
     private HashMap<String,ActionNode> _actionNodes = new HashMap<String,ActionNode>();
 
+    /**
+     * Adds a task to the checklist
+     * @param name the name of the task
+     * @param action the Action, which comprises the work to be done
+     */
     public ActionNode addAction(String name, Action action) {
         return addAction(name, new ArrayList<String>(), action);
     }
 
+    /**
+     * Adds a task to the checklist
+     * @param name the name of the task
+     * @param dependencies list of tasks names the action is dependent on
+     * @param action the Action, which comprises the work to be done
+     */
     public ActionNode addAction(String name, ArrayList<String> dependencies, Action action) {
         ActionNode node = new ActionNode(name, dependencies, action);
         if (_actionNodes.containsKey(name)) {
@@ -23,6 +34,10 @@ public class Checklist
         return node;
     }
 
+    /**
+     * Returns a list of the ActionNodes sorted by topological order, such that
+     * dependent actions are first.
+     */
     public ArrayList<ActionNode> getSortedTasks() {
         HashMap<String,ActionNode> nodes = new HashMap<String,ActionNode>();
         HashMap<String,HashSet<String>> dependentNodes = new HashMap<String,HashSet<String>>();
@@ -74,6 +89,10 @@ public class Checklist
         return sortedNodes;
     }
 
+    /**
+     * Executes the tasks requested as well as their dependencies
+     * @param taskNames the names of the tasks to run
+     */
     public void run(String[] taskNames) {
         taskNames = removeDuplicates(taskNames);
 
@@ -88,8 +107,13 @@ public class Checklist
         }
     }
 
-    // recursively traverse through task and its dependencies adding them to
-    // the required set
+    /**
+     * For a give task name, goes through the task nodes and adds it and
+     * required dependencies to the set.
+     * @param taskName the name of the task
+     * @param nodes map of available task nodes
+     * @param requiredTasks set of nodes where dependencies will be added
+     */
     public void addDependencies(String taskName,
         HashMap<String,ActionNode> nodes, HashSet<String> requiredTasks) {
 
@@ -102,6 +126,10 @@ public class Checklist
         }
     }
 
+    /**
+     * Returns a new array without any duplicates
+     * @param array the array of strings
+     */
     private String[] removeDuplicates(String[] array) {
         HashSet<String> set = new HashSet<String>();
         ArrayList<String> out = new ArrayList<String>();
