@@ -93,9 +93,4 @@ class App
 
         throw new FileNotFoundException("file not found");
     }
-
-    private class PrivateThing
-    {
-
-    }
 }

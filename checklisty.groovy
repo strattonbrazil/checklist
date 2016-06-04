@@ -5,7 +5,8 @@ import java.util.concurrent.Callable;
 class MyAction extends Action
 {
     Callable<String> getWork(ChecklistContext ctx) {
-
+        ctx.src("foo", [name: 'Gromit', likes: 'cheese', id: 1234]);
+        return { "foo" } as Callable
     }
 }
 
@@ -15,4 +16,4 @@ checklist.addAction("clean", new MyAction())
 
 checklist.addAction("compile", ["clean"], new MyAction())
 
-checklist.addAction("default", new MyAction())
+checklist.addAction("default", ["compile"], new MyAction())

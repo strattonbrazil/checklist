@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
 import java.util.HashSet;
+import java.util.concurrent.Callable;
 
 public class Checklist
 {
@@ -95,15 +96,39 @@ public class Checklist
      */
     public void run(String[] taskNames) {
         taskNames = removeDuplicates(taskNames);
+        ArrayList<ActionNode> allTasks = getSortedTasks();
 
-        // TODO: if empty, assume "default"
+        // if no tasks specified, assume "default"
+        if (taskNames.length == 0) {
+            if (!_actionNodes.keySet().contains("default")) {
+                System.err.println("no tasks specified and no default task found");
+                System.exit(1);
+            }
+
+            taskNames = new String[] { "default" };
+        }
 
         // filter out tasks that don't need to be run
         //
-        ArrayList<ActionNode> allTasks = getSortedTasks();
         HashSet<String> requiredTasks = new HashSet<String>();
         for (String taskName : taskNames) {
             addDependencies(taskName, _actionNodes, requiredTasks);
+        }
+        ChecklistContext ctx = new ChecklistContext();
+
+        for (ActionNode node : allTasks) {
+            if (requiredTasks.contains(node.name)) {
+                System.out.println("executing task: " + node.name);
+
+                Callable<String> work = node.action.getWork(ctx);
+                try {
+                    String response = work.call();
+                    System.out.println(response);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    System.exit(1);
+                }
+            }
         }
     }
 

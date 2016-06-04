@@ -6,12 +6,12 @@ public class ActionNode
 {
     final String name;
     final ArrayList<String> _dependencies;
-    final Action _action;
+    final Action action;
 
     public ActionNode(String name, ArrayList<String> deps, Action action) {
         this.name = name;
         this._dependencies = deps;
-        this._action = action;
+        this.action = action;
     }
 
     public ArrayList<String> dependencies() {
