@@ -5,9 +5,16 @@ import java.util.HashMap;
 import java.util.Stack;
 import java.util.HashSet;
 import java.util.concurrent.Callable;
+import java.nio.file.Path;
 
 public class Checklist
 {
+
+    public Checklist(Path cwd) {
+        this.cwd = cwd;
+    }
+
+    private final Path cwd;
     private HashMap<String,ActionNode> _actionNodes = new HashMap<String,ActionNode>();
 
     /**
@@ -114,7 +121,7 @@ public class Checklist
         for (String taskName : taskNames) {
             addDependencies(taskName, _actionNodes, requiredTasks);
         }
-        ChecklistContext ctx = new ChecklistContext();
+        ChecklistContext ctx = new ChecklistContext(cwd);
 
         for (ActionNode node : allTasks) {
             if (requiredTasks.contains(node.name)) {

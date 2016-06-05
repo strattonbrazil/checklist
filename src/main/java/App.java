@@ -41,7 +41,7 @@ class App
 
         try {
             CommandLine cl = parseCommandLine(args);
-            Checklist checklist = new Checklist();
+            Checklist checklist = new Checklist(checklistPath.getParent());
 
             Binding binding = new Binding();
             binding.setProperty("out", new PrintStream(System.out));
