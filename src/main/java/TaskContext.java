@@ -11,11 +11,11 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
 
-public class ChecklistContext
+public class TaskContext
 {
     private final Path cwd;
 
-    public ChecklistContext(Path cwd) {
+    public TaskContext(Path cwd) {
         this.cwd = cwd;
     }
 

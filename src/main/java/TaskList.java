@@ -7,10 +7,10 @@ import java.util.HashSet;
 import java.util.concurrent.Callable;
 import java.nio.file.Path;
 
-public class Checklist
+public class TaskList
 {
 
-    public Checklist(Path cwd) {
+    public TaskList(Path cwd) {
         this.cwd = cwd;
     }
 
@@ -121,7 +121,7 @@ public class Checklist
         for (String taskName : taskNames) {
             addDependencies(taskName, _taskNodes, requiredTasks);
         }
-        ChecklistContext ctx = new ChecklistContext(cwd);
+        TaskContext ctx = new TaskContext(cwd);
 
         for (TaskNode node : allTasks) {
             if (requiredTasks.contains(node.name)) {

@@ -20,40 +20,40 @@ class App
 {
     public static void main(String[] args) {
         // if the first arg is an existing file, assume it's the definition file
-        Path checklistPath = args.length > 0 ? Paths.get(args[0]) : null;
-        if (checklistPath != null && !Files.exists(checklistPath)) {
-            checklistPath = null;
+        Path tasklistPath = args.length > 0 ? Paths.get(args[0]) : null;
+        if (tasklistPath != null && !Files.exists(tasklistPath)) {
+            tasklistPath = null;
         }
-        App app = new App(checklistPath, args);
+        App app = new App(tasklistPath, args);
     }
 
-    public App(Path checklistPath, String[] args) {
+    public App(Path tasklistPath, String[] args) {
         Path currentRelativePath = Paths.get("").toAbsolutePath();
 
-        if (checklistPath == null) {
+        if (tasklistPath == null) {
             try {
-                checklistPath = findChecklistPath();
+                tasklistPath = findtasklistPath();
             } catch (FileNotFoundException e) {
-                System.err.println("unable to find suitable checklist file");
+                System.err.println("unable to find suitable tasklist file");
                 System.exit(1);
             }
         }
 
         try {
             CommandLine cl = parseCommandLine(args);
-            Checklist checklist = new Checklist(checklistPath.getParent());
+            TaskList tasklist = new TaskList(tasklistPath.getParent());
 
             Binding binding = new Binding();
             binding.setProperty("out", new PrintStream(System.out));
-            binding.setVariable("checklist", checklist);
+            binding.setVariable("tasklist", tasklist);
             GroovyShell shell = new GroovyShell(binding);
 
             try {
-                shell.run(checklistPath.toFile(), new String[]{ } );
+                shell.run(tasklistPath.toFile(), new String[]{ } );
 
-                checklist.run(cl.getArgs());
+                tasklist.run(cl.getArgs());
             } catch (IOException e) {
-                System.err.println("error processing script: " + checklistPath.toString());
+                System.err.println("error processing script: " + tasklistPath.toString());
                 System.exit(1);
             }
         } catch (org.apache.commons.cli.ParseException e) {
@@ -72,13 +72,13 @@ class App
         return parser.parse(opts, args);
     }
 
-    private Path findChecklistPath() throws FileNotFoundException {
+    private Path findtasklistPath() throws FileNotFoundException {
         Path currentRelativePath = Paths.get("").toAbsolutePath();
 
         while (currentRelativePath.getParent() != null) {
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(currentRelativePath)) {
                 for (Path file: stream) {
-                    if (file.getFileName().toString().matches("checklisty.groovy")) {
+                    if (file.getFileName().toString().matches("tasklisty.groovy")) {
                         return file;
                     }
                 }

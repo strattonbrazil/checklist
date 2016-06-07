@@ -1,9 +1,9 @@
-checklist
+taskList
 =========
 
 A experimental dependency-based task manager.  
 
-To run checklist, type *sbt run*
+To run taskList, type *sbt run*
 
 To run the unit tests, type *sbt test*
 

@@ -1,6 +1,6 @@
 organization := "com.github.strattonbrazil.checklist"
 
-name := "Checklist"
+name := "TaskList"
 
 version := "1.0-SNAPSHOT"
 

@@ -4,5 +4,5 @@ import java.util.concurrent.Callable;
 
 public abstract class Task
 {
-    public abstract Callable<String> getWork(ChecklistContext ctx);
+    public abstract Callable<String> getWork(TaskContext ctx);
 }

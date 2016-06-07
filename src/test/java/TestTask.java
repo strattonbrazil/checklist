@@ -1,12 +1,13 @@
-import static org.junit.Assert.*;
-
 import org.junit.Before;
 import org.junit.Test;
-import static org.hamcrest.CoreMatchers.instanceOf;
 
 import java.nio.file.Paths;
 import java.util.concurrent.Callable;
-import com.github.strattonbrazil.checklist.ChecklistContext;
+import com.github.strattonbrazil.checklist.Task;
+import com.github.strattonbrazil.checklist.TaskContext;
+
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.*;
 
 public class TestTask {
 
@@ -21,17 +22,18 @@ public class TestTask {
    @Test
    public void testAnonymous()
    {
-       com.github.strattonbrazil.checklist.Task task = new com.github.strattonbrazil.checklist.Task() {
-           public Callable<String> getWork(ChecklistContext ctx) { return null; }
+       Task task = new Task() {
+           public Callable<String> getWork(TaskContext ctx) { return null; }
        };
-       assertThat(task, instanceOf(com.github.strattonbrazil.checklist.Task.class));
+       assertThat(task, instanceOf(Task.class));
+
        //assertTrue(task.go());
    }
 
    @Test
    public void testAsyncFinished() {
-       com.github.strattonbrazil.checklist.Task task = new com.github.strattonbrazil.checklist.Task() {
-            public Callable<String> getWork(ChecklistContext ctx) {
+       Task task = new Task() {
+            public Callable<String> getWork(TaskContext ctx) {
                 return new Callable<String>() {
                     public String call() {
                         return "foo";
@@ -41,7 +43,7 @@ public class TestTask {
        };
 
        try {
-           ChecklistContext ctx = new ChecklistContext(Paths.get(""));
+           TaskContext ctx = new TaskContext(Paths.get(""));
            Callable<String> callable = task.getWork(ctx);
            String ack = callable.call();
            assertEquals("string not equal", ack, "foo");
