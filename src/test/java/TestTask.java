@@ -3,11 +3,12 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import static org.hamcrest.CoreMatchers.instanceOf;
-import com.github.strattonbrazil.checklist.Action;
+
+import java.nio.file.Paths;
 import java.util.concurrent.Callable;
 import com.github.strattonbrazil.checklist.ChecklistContext;
 
-public class TestAction {
+public class TestTask {
 
    //private HelloWorld h;
 
@@ -20,16 +21,16 @@ public class TestAction {
    @Test
    public void testAnonymous()
    {
-       Action action = new Action() {
+       com.github.strattonbrazil.checklist.Task task = new com.github.strattonbrazil.checklist.Task() {
            public Callable<String> getWork(ChecklistContext ctx) { return null; }
        };
-       assertThat(action, instanceOf(Action.class));
-       //assertTrue(action.go());
+       assertThat(task, instanceOf(com.github.strattonbrazil.checklist.Task.class));
+       //assertTrue(task.go());
    }
 
    @Test
    public void testAsyncFinished() {
-       Action action = new Action() {
+       com.github.strattonbrazil.checklist.Task task = new com.github.strattonbrazil.checklist.Task() {
             public Callable<String> getWork(ChecklistContext ctx) {
                 return new Callable<String>() {
                     public String call() {
@@ -40,8 +41,8 @@ public class TestAction {
        };
 
        try {
-           ChecklistContext ctx = new ChecklistContext();
-           Callable<String> callable = action.getWork(ctx);
+           ChecklistContext ctx = new ChecklistContext(Paths.get(""));
+           Callable<String> callable = task.getWork(ctx);
            String ack = callable.call();
            assertEquals("string not equal", ack, "foo");
        } catch (Exception e) {

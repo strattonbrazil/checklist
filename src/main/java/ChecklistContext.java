@@ -19,19 +19,19 @@ public class ChecklistContext
         this.cwd = cwd;
     }
 
-    public ActionStream src(String glob) {
+    public TaskStream src(String glob) {
         return src(new String[] { glob }, new LinkedHashMap());
     }
 
-    public ActionStream src(String glob, LinkedHashMap options) {
+    public TaskStream src(String glob, LinkedHashMap options) {
         return src(new String[] { glob }, options);
     }
 
-    public ActionStream src(String[] globs) {
+    public TaskStream src(String[] globs) {
         return src(globs, new LinkedHashMap());
     }
 
-    public ActionStream src(String[] globs, LinkedHashMap options) {
+    public TaskStream src(String[] globs, LinkedHashMap options) {
         // TODO: replace use of ArrayList with stream,
         ArrayList<Path> paths = new ArrayList<>();
         for (String glob : globs) {
@@ -47,6 +47,6 @@ public class ChecklistContext
         }
 
         // map this to something equivalent to a vinyl object
-        return new ActionStream(Observable.from(paths).map(path -> new ActionFile(path)));
+        return new TaskStream(Observable.from(paths).map(path -> new TaskFile(path)));
     }
 }

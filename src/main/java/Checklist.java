@@ -15,52 +15,52 @@ public class Checklist
     }
 
     private final Path cwd;
-    private HashMap<String,ActionNode> _actionNodes = new HashMap<String,ActionNode>();
+    private HashMap<String,TaskNode> _taskNodes = new HashMap<String,TaskNode>();
 
     /**
      * Adds a task to the checklist
      * @param name the name of the task
-     * @param action the Action, which comprises the work to be done
+     * @param task the Task, which comprises the work to be done
      */
-    public ActionNode addAction(String name, Action action) {
-        return addAction(name, new ArrayList<String>(), action);
+    public TaskNode addTask(String name, Task task) {
+        return addTask(name, new ArrayList<String>(), task);
     }
 
     /**
      * Adds a task to the checklist
      * @param name the name of the task
-     * @param dependencies list of tasks names the action is dependent on
-     * @param action the Action, which comprises the work to be done
+     * @param dependencies list of tasks names the task is dependent on
+     * @param task the Task, which comprises the work to be done
      */
-    public ActionNode addAction(String name, ArrayList<String> dependencies, Action action) {
-        ActionNode node = new ActionNode(name, dependencies, action);
-        if (_actionNodes.containsKey(name)) {
+    public TaskNode addTask(String name, ArrayList<String> dependencies, Task task) {
+        TaskNode node = new TaskNode(name, dependencies, task);
+        if (_taskNodes.containsKey(name)) {
             System.err.println("duplicate task name defined: " + name);
             System.exit(1);
         }
-        _actionNodes.put(name, node);
+        _taskNodes.put(name, node);
         return node;
     }
 
     /**
-     * Returns a list of the ActionNodes sorted by topological order, such that
-     * dependent actions are first.
+     * Returns a list of the TaskNodes sorted by topological order, such that
+     * dependent tasks are first.
      */
-    public ArrayList<ActionNode> getSortedTasks() {
-        HashMap<String,ActionNode> nodes = new HashMap<String,ActionNode>();
+    public ArrayList<TaskNode> getSortedTasks() {
+        HashMap<String,TaskNode> nodes = new HashMap<String,TaskNode>();
         HashMap<String,HashSet<String>> dependentNodes = new HashMap<String,HashSet<String>>();
         HashMap<String,ArrayList<String>> nodeDependencies = new HashMap<String,ArrayList<String>>();
 
-        // map action names to nodes
-        for (String taskName : _actionNodes.keySet()) {
-            nodes.put(taskName, _actionNodes.get(taskName));
+        // map task names to nodes
+        for (String taskName : _taskNodes.keySet()) {
+            nodes.put(taskName, _taskNodes.get(taskName));
             dependentNodes.put(taskName, new HashSet<String>());
-            nodeDependencies.put(taskName, _actionNodes.get(taskName).dependencies());
+            nodeDependencies.put(taskName, _taskNodes.get(taskName).dependencies());
         }
 
         // gather nodes with no dependencies
-        Stack<ActionNode> noDependencyNodes = new Stack<ActionNode>();
-        for (ActionNode node : _actionNodes.values()) {
+        Stack<TaskNode> noDependencyNodes = new Stack<TaskNode>();
+        for (TaskNode node : _taskNodes.values()) {
             if (node.dependencies().size() == 0) {
                 noDependencyNodes.push(node);
             }
@@ -73,14 +73,14 @@ public class Checklist
         // add nodes with no dependencies to list; if all of a node's
         // dependencies have been added, it can be added
         //
-        ArrayList<ActionNode> sortedNodes = new ArrayList<ActionNode>();
+        ArrayList<TaskNode> sortedNodes = new ArrayList<TaskNode>();
         while (!noDependencyNodes.isEmpty()) {
-            ActionNode nNode = noDependencyNodes.pop();
+            TaskNode nNode = noDependencyNodes.pop();
             sortedNodes.add(nNode);
 
             // for each node "m" dependent on "n"
             for (String mNodeName : dependentNodes.get(nNode.name)) {
-                ActionNode mNode = nodes.get(mNodeName);
+                TaskNode mNode = nodes.get(mNodeName);
                 nodeDependencies.get(mNodeName).remove(nNode.name);
                 if (nodeDependencies.get(mNodeName).isEmpty()) {
                     noDependencyNodes.push(mNode);
@@ -103,11 +103,11 @@ public class Checklist
      */
     public void run(String[] taskNames) {
         taskNames = removeDuplicates(taskNames);
-        ArrayList<ActionNode> allTasks = getSortedTasks();
+        ArrayList<TaskNode> allTasks = getSortedTasks();
 
         // if no tasks specified, assume "default"
         if (taskNames.length == 0) {
-            if (!_actionNodes.keySet().contains("default")) {
+            if (!_taskNodes.keySet().contains("default")) {
                 System.err.println("no tasks specified and no default task found");
                 System.exit(1);
             }
@@ -119,15 +119,15 @@ public class Checklist
         //
         HashSet<String> requiredTasks = new HashSet<String>();
         for (String taskName : taskNames) {
-            addDependencies(taskName, _actionNodes, requiredTasks);
+            addDependencies(taskName, _taskNodes, requiredTasks);
         }
         ChecklistContext ctx = new ChecklistContext(cwd);
 
-        for (ActionNode node : allTasks) {
+        for (TaskNode node : allTasks) {
             if (requiredTasks.contains(node.name)) {
                 System.out.println("executing task: " + node.name);
 
-                Callable<String> work = node.action.getWork(ctx);
+                Callable<String> work = node.task.getWork(ctx);
                 try {
                     String response = work.call();
                     System.out.println(response);
@@ -147,10 +147,10 @@ public class Checklist
      * @param requiredTasks set of nodes where dependencies will be added
      */
     public void addDependencies(String taskName,
-        HashMap<String,ActionNode> nodes, HashSet<String> requiredTasks) {
+        HashMap<String,TaskNode> nodes, HashSet<String> requiredTasks) {
 
         if (!requiredTasks.contains(taskName)) {
-            ActionNode node = nodes.get(taskName);
+            TaskNode node = nodes.get(taskName);
             requiredTasks.add(taskName);
             for (String dependency : node.dependencies()) {
                 addDependencies(dependency, nodes, requiredTasks);
