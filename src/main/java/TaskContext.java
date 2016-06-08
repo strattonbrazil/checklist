@@ -49,4 +49,8 @@ public class TaskContext
         // map this to something equivalent to a vinyl object
         return new TaskStream(Observable.from(paths).map(path -> new TaskFile(path)));
     }
+
+    public DestPlugin dest(String path) {
+        return new DestPlugin(path);
+    }
 }

@@ -1,6 +1,7 @@
 package com.github.strattonbrazil.checklist;
 
-import rx.Observable;
+import rx.*;
+import rx.functions.Action1;
 
 public class TaskStream {
     final private Observable<TaskFile> files;
@@ -11,11 +12,16 @@ public class TaskStream {
         //files.subscribe(System.out::println);
     }
 
-    public com.github.strattonbrazil.checklist.TaskStream pipe() {
-        return null;
-    }
+    public TaskStream pipe(MunchPlugin plugin) {
+        Observable<TaskFile> ref = this.files.share();
 
-    public com.github.strattonbrazil.checklist.TaskStream dest(String path) {
-        return null;
+        this.files.subscribe(new Action1<TaskFile>() {
+            @Override
+            public void call(TaskFile file) {
+                plugin.transform(file);
+            }
+        });
+
+        return new TaskStream(ref);
     }
 }

@@ -12,6 +12,7 @@ To package in uberjar, type *sbt assembly*
 TODO
 ====
 
+* make sure specifying task names works from CLI
 * move "checklist" package to "munch"
 * implement dest() function
 * implement pipe() function and plugin interface

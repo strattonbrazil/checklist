@@ -5,7 +5,9 @@ import java.util.concurrent.Callable;
 class MyTask extends Task
 {
     Callable<String> getWork(TaskContext ctx) {
-        ctx.src("**sax.txt", [name: 'Gromit', likes: 'cheese', id: 1234]);
+        ctx.src("**sax.txt", [name: 'Gromit', likes: 'cheese', id: 1234])
+           .pipe(ctx.dest("/tmp/foo"))
+           .pipe(ctx.dest("/tmp/bar"));
         return { "foo" } as Callable
     }
 }
