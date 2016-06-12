@@ -32,7 +32,7 @@ class App
 
         if (tasklistPath == null) {
             try {
-                tasklistPath = findtasklistPath();
+                tasklistPath = findTasklistPath();
             } catch (FileNotFoundException e) {
                 System.err.println("unable to find suitable tasklist file");
                 System.exit(1);
@@ -40,6 +40,7 @@ class App
         }
 
         try {
+            System.out.println("args: " + String.join(", ", args));
             CommandLine cl = parseCommandLine(args);
             TaskList tasklist = new TaskList(tasklistPath.getParent());
 
@@ -72,7 +73,7 @@ class App
         return parser.parse(opts, args);
     }
 
-    private Path findtasklistPath() throws FileNotFoundException {
+    private Path findTasklistPath() throws FileNotFoundException {
         Path currentRelativePath = Paths.get("").toAbsolutePath();
 
         while (currentRelativePath.getParent() != null) {

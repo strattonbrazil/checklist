@@ -115,6 +115,8 @@ public class TaskList
             taskNames = new String[] { "default" };
         }
 
+        System.out.println("running tasks: " + String.join(", ", taskNames));
+
         // filter out tasks that don't need to be run
         //
         HashSet<String> requiredTasks = new HashSet<String>();

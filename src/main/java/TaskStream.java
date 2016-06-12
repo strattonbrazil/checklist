@@ -1,5 +1,6 @@
 package com.github.strattonbrazil.checklist;
 
+import java.util.ArrayList;
 import rx.*;
 import rx.functions.Action1;
 
@@ -13,15 +14,22 @@ public class TaskStream {
     }
 
     public TaskStream pipe(MunchPlugin plugin) {
-        Observable<TaskFile> ref = this.files.share();
 
+        PluginContext ctx = new com.github.strattonbrazil.checklist.PluginContext();
+        final ArrayList<TaskFile> currentFiles = new ArrayList<TaskFile>();
         this.files.subscribe(new Action1<TaskFile>() {
             @Override
             public void call(TaskFile file) {
-                plugin.transform(file);
+                plugin.transform(ctx, file);
+                currentFiles.add(file);
             }
         });
 
-        return new TaskStream(ref);
+        // use the new files pushed from the plugin
+        if (ctx.hasPushedFiles()) {
+            return new TaskStream(Observable.from(ctx.getFiles()));
+        }
+
+        return new TaskStream(Observable.from(currentFiles));
     }
 }
