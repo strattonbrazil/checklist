@@ -1,6 +1,28 @@
-import com.github.strattonbrazil.checklist.Task
-import com.github.strattonbrazil.checklist.TaskContext
-import java.util.concurrent.Callable;
+@Grab(group='commons-io', module='commons-io', version='2.5')
+import org.apache.commons.io.FileUtils;
+
+class CleanTask extends Task
+{
+    Callable<String> getWork(TaskContext ctx) {
+
+        //println("creating file")
+        //FileUtils.deleteDirectory("./bin");
+
+        return { "foo" } as Callable
+    }
+}
+
+//tasklist.addTask("foo", ["compile", "clean"], { TaskContext ctx -> })
+
+
+class CompileTask extends Task
+{
+    Callable<String> getWork(TaskContext ctx) {
+        //ctx.src("")
+
+        return { "foo" } as Callable
+    }
+}
 
 class MyTask extends Task
 {
@@ -14,8 +36,8 @@ class MyTask extends Task
 
 tasklist.addTask("copy_images", ["compile", "clean"], new MyTask())
 
-tasklist.addTask("clean", new MyTask())
+tasklist.addTask("clean", new CleanTask())
 
-tasklist.addTask("compile", ["clean"], new MyTask())
+tasklist.addTask("compile", ["clean"], new CompileTask())
 
 tasklist.addTask("default", ["compile"], new MyTask())

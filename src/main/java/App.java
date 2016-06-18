@@ -15,6 +15,8 @@ import java.nio.file.Paths;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
+import org.codehaus.groovy.control.*;
+import org.codehaus.groovy.control.customizers.*;
 
 class App
 {
@@ -42,12 +44,9 @@ class App
         try {
             System.out.println("args: " + String.join(", ", args));
             CommandLine cl = parseCommandLine(args);
-            TaskList tasklist = new TaskList(tasklistPath.getParent());
 
-            Binding binding = new Binding();
-            binding.setProperty("out", new PrintStream(System.out));
-            binding.setVariable("tasklist", tasklist);
-            GroovyShell shell = new GroovyShell(binding);
+            TaskList tasklist = new TaskList(tasklistPath.getParent());
+            GroovyShell shell = getShell(tasklist);
 
             try {
                 shell.run(tasklistPath.toFile(), new String[]{ } );
@@ -61,6 +60,21 @@ class App
             System.err.println(e.getMessage());
             System.exit(1);
         }
+    }
+
+    private GroovyShell getShell(TaskList tasklist) {
+        Binding binding = new Binding();
+        binding.setProperty("out", new PrintStream(System.out));
+        binding.setVariable("tasklist", tasklist);
+
+        CompilerConfiguration compilerConfig = CompilerConfiguration.DEFAULT;
+        ImportCustomizer customImports = new ImportCustomizer();
+        customImports.addImport("Task", "com.github.strattonbrazil.checklist.Task");
+        customImports.addImport("TaskContext", "com.github.strattonbrazil.checklist.TaskContext");
+        customImports.addImport("Callable", "java.util.concurrent.Callable");
+        compilerConfig.addCompilationCustomizers(customImports);
+
+        return new GroovyShell(binding, compilerConfig);
     }
 
     private CommandLine parseCommandLine(String[] args)

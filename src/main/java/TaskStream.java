@@ -9,12 +9,9 @@ public class TaskStream {
 
     public TaskStream(Observable<TaskFile> files) {
         this.files = files;
-
-        //files.subscribe(System.out::println);
     }
 
     public TaskStream pipe(MunchPlugin plugin) {
-
         PluginContext ctx = new com.github.strattonbrazil.checklist.PluginContext();
         final ArrayList<TaskFile> currentFiles = new ArrayList<TaskFile>();
         this.files.subscribe(new Action1<TaskFile>() {

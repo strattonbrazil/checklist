@@ -17,6 +17,9 @@ libraryDependencies += "commons-cli" % "commons-cli" % "1.3.1"
 // http://mvnrepository.com/artifact/io.reactivex/rxjava
 libraryDependencies += "io.reactivex" % "rxjava" % "1.1.5"
 
+// http://mvnrepository.com/artifact/org.apache.ivy/ivy
+libraryDependencies += "org.apache.ivy" % "ivy" % "2.4.0"
+
 libraryDependencies ++= Seq(
   "junit" % "junit" % "4.11" % Test,
   "com.novocode" % "junit-interface" % "0.11" % Test
