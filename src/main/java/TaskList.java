@@ -1,5 +1,7 @@
 package com.github.strattonbrazil.checklist;
 
+import groovy.lang.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
@@ -26,6 +28,10 @@ public class TaskList
         return addTask(name, new ArrayList<String>(), task);
     }
 
+    public TaskNode addTask(String name, Closure closure) {
+        return addTask(name, new ArrayList<String>(), new ClosureTask(closure));
+    }
+
     /**
      * Adds a task to the checklist
      * @param name the name of the task
@@ -40,6 +46,10 @@ public class TaskList
         }
         _taskNodes.put(name, node);
         return node;
+    }
+
+    public TaskNode addTask(String name, ArrayList<String> dependencies, Closure closure) {
+        return addTask(name, dependencies, new ClosureTask(closure));
     }
 
     /**
@@ -115,6 +125,13 @@ public class TaskList
             taskNames = new String[] { "default" };
         }
 
+        for (String taskName : taskNames) {
+            if (!_taskNodes.containsKey(taskName)) {
+                System.err.println("no task of name: " + taskName);
+                System.exit(1);
+            }
+        }
+
         System.out.println("running tasks: " + String.join(", ", taskNames));
 
         // filter out tasks that don't need to be run
@@ -129,14 +146,7 @@ public class TaskList
             if (requiredTasks.contains(node.name)) {
                 System.out.println("executing task: " + node.name);
 
-                Callable<String> work = node.task.getWork(ctx);
-                try {
-                    String response = work.call();
-                    System.out.println(response);
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                    System.exit(1);
-                }
+                node.task.call(ctx);
             }
         }
     }
