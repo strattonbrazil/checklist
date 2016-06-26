@@ -21,6 +21,7 @@ public class TaskStream {
                 currentFiles.add(file);
             }
         });
+        plugin.complete(ctx);
 
         // use the new files pushed from the plugin
         if (ctx.hasPushedFiles()) {
