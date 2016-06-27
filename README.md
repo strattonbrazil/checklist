@@ -14,3 +14,4 @@ TODO
 
 * move "checklist" package to "munch"
 * support tasks with only dependencies (like default)
+* update JavacPlugin to not require a temp directory

@@ -1,18 +1,21 @@
 package com.github.strattonbrazil.checklist;
 
+import java.nio.file.*;
 import java.util.ArrayList;
 import rx.*;
 import rx.functions.Action1;
 
 public class TaskStream {
     final private Observable<TaskFile> files;
+    final private Path cwd;
 
-    public TaskStream(Observable<TaskFile> files) {
+    public TaskStream(Path cwd, Observable<TaskFile> files) {
+        this.cwd = cwd;
         this.files = files;
     }
 
     public TaskStream pipe(MunchPlugin plugin) {
-        PluginContext ctx = new com.github.strattonbrazil.checklist.PluginContext();
+        PluginContext ctx = new PluginContext(cwd);
         final ArrayList<TaskFile> currentFiles = new ArrayList<TaskFile>();
         this.files.subscribe(new Action1<TaskFile>() {
             @Override
@@ -25,9 +28,9 @@ public class TaskStream {
 
         // use the new files pushed from the plugin
         if (ctx.hasPushedFiles()) {
-            return new TaskStream(Observable.from(ctx.getFiles()));
+            return new TaskStream(cwd, Observable.from(ctx.getFiles()));
         }
 
-        return new TaskStream(Observable.from(currentFiles));
+        return new TaskStream(cwd, Observable.from(currentFiles));
     }
 }

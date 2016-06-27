@@ -3,29 +3,24 @@ package com.github.strattonbrazil.checklist;
 import javax.tools.*;
 import java.io.*;
 import java.net.*;
+import java.nio.*;
+import java.nio.charset.*;
 import java.nio.file.*;
 import java.util.*;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 class JavacPlugin implements MunchPlugin {
     private Path _tmpDir;
-    private ArrayList<JavaSourceFromString> _compilationUnits;
-
-    public JavacPlugin() {
-
-        _compilationUnits = new ArrayList<JavaSourceFromString>();
-    }
+    private ArrayList<JavaSourceFromString> _compilationUnits = new ArrayList<JavaSourceFromString>();
 
     public void transform(PluginContext ctx, TaskFile file) {
-
-        // write file
-        //Path cwd = Paths.get("").toAbsolutePath();
-        //copyFile(file.buffer, cwd.relativize(file.path));
-
-        //System.out.println("copying task file: " + file + " to " + path);
-
-        _compilationUnits.add(new JavaSourceFromString("Foo", "public class Foo { private class Arg {} } "));
-
-
+        String charEncoding = System.getProperty("file.encoding");
+        CharBuffer charBuffer = Charset.forName(charEncoding).decode(file.buffer);
+        //String baseName = FilenameUtils.getBaseName(file.path.getFileName());
+        String path = ctx.cwd.relativize(file.path).toString();
+        System.out.println("src path: " + path);
+        _compilationUnits.add(new JavaSourceFromString("test/TestApp", charBuffer.toString()));
     }
 
     public void complete(PluginContext ctx) {

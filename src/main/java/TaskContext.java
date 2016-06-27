@@ -32,22 +32,35 @@ public class TaskContext
     }
 
     public TaskStream src(String[] globs, LinkedHashMap options) {
+        boolean verbose = OptionParser.getBoolean(options, "verbose", false);
+
+        if (verbose)
+            System.out.println("cwd: " + cwd);
+
         // TODO: replace use of ArrayList with stream,
         ArrayList<Path> paths = new ArrayList<>();
         for (String glob : globs) {
             PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + glob);
 
+            if (verbose)
+                System.out.println("glob: " + glob);
+
             try {
                 paths.addAll(Files.walk(cwd)
-                                  .filter(p -> matcher.matches(p))
+                                  .filter(p -> matcher.matches(cwd.relativize(p)) )
                                   .collect(Collectors.toCollection(ArrayList::new)));
             } catch (IOException e) {
                 // TODO: handle this situation
             }
         }
+        if (verbose) {
+            for (Path path : paths) {
+                System.out.println("src: " + path);
+            }
+        }
 
         // map this to something equivalent to a vinyl object
-        return new TaskStream(Observable.from(paths).map(path -> new TaskFile(path)));
+        return new TaskStream(cwd, Observable.from(paths).map(path -> new TaskFile(path)));
     }
 
     public DestPlugin dest(String path) {
