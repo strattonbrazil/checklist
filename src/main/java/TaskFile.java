@@ -13,7 +13,15 @@ public class TaskFile {
     final ByteBuffer buffer;
 
     public TaskFile(Path path) {
-        this.path = path;
+        this(path, null);
+    }
+
+    public TaskFile(Path path, Path pathBase) {
+        if (pathBase != null) {
+            this.path = pathBase.relativize(path);
+        } else {
+            this.path = path;
+        }
 
         MappedByteBuffer buffer = null;
 

@@ -15,7 +15,7 @@ class DestPlugin implements MunchPlugin {
     public void transform(PluginContext ctx, TaskFile file) {
         // write file
         Path cwd = Paths.get("").toAbsolutePath();
-        copyFile(file.buffer, cwd.relativize(file.path));
+        copyFile(file.buffer, file.path);
 
         System.out.println("copying task file: " + file + " to " + path);
     }

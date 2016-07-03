@@ -18,7 +18,7 @@ class JavacPlugin implements MunchPlugin {
         String charEncoding = System.getProperty("file.encoding");
         CharBuffer charBuffer = Charset.forName(charEncoding).decode(file.buffer);
         //String baseName = FilenameUtils.getBaseName(file.path.getFileName());
-        String path = ctx.cwd.relativize(file.path).toString();
+        String path = ctx.cwd.relativize(file.path).toString().replace(".java", "");
         System.out.println("src path: " + path);
         _compilationUnits.add(new JavaSourceFromString("test/TestApp", charBuffer.toString()));
     }
@@ -54,10 +54,18 @@ class JavacPlugin implements MunchPlugin {
             fileManager.close();
         } catch (IOException e) {
             System.err.println("compile failed");
+            System.exit(1);
         }
-        System.out.println("Success: " + success);
 
-
+        try {
+            Files.walk(_tmpDir)
+                 .map(p -> ctx.cwd.relativize(p))
+                 .filter(p -> Files.isRegularFile(p))
+                 .map(p -> new TaskFile(p, ctx.cwd.relativize(_tmpDir)))
+                 .forEach(ctx::push);
+        } catch (IOException e) {
+                // TODO: handle this situation
+        }
     }
 
     public class JavaSourceFromString extends SimpleJavaFileObject {

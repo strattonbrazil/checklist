@@ -5,7 +5,7 @@ import com.github.strattonbrazil.checklist.JavacPlugin;
 
 tasklist.addTask("clean", {
     TaskContext ctx ->
-        FileUtils.deleteDirectory(new File("./bin"));
+        FileUtils.deleteQuietly(new File("./bin"));
         "cleaned"
 })
 
@@ -15,12 +15,27 @@ tasklist.addTask("compile", ["clean"], {
         //println ctx
         ctx.src("test/*.java", [verbose: true])
             .pipe(new JavacPlugin())
+            .pipe(ctx.dest("./bin"))
            //.pipe(ctx.dest("./bin/foo"))
            //.pipe(ctx.dest("./bin/bar"))
         "compiled"
 })
 
-tasklist.addTask("default", ["compile"], {
+tasklist.addTask("create_manifest", { //META-INF/MANIFEST.MF
+    TaskContext ctx ->
+        println "creating manifest"
+        ctx.src("./bin")
+        "created manifest"
+})
+
+tasklist.addTask("jar", ["compile"], {
+    TaskContext ctx ->
+        println "jarring"
+        ctx.src()
+        "jarred"
+})
+
+tasklist.addTask("default", ["jar"], {
     TaskContext ctx -> "foo"
 })
 
